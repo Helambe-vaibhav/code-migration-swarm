@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RefactorSwarm — Autonomous Multi-Agent Code Migration</title>
+  <meta name="description" content="Autonomous enterprise code migration and test-driven refactoring swarm powered by LangGraph, AST dependency analysis, and self-healing compiler loops.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">
+        <span class="logo-icon">⚡</span>
+      </div>
+      <div>
+        <h1 class="brand-title">Refactor<span>Swarm</span></h1>
+        <p class="brand-tagline">Autonomous Enterprise Code Migration & Test-Driven Refactoring (LangGraph)</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="status-pill" id="globalStatusPill">
+        <span class="status-dot"></span>
+        <span id="globalStatusText">Ready / Idle</span>
+      </div>
+      <button id="btnLaunchSwarm" class="btn btn-primary">
+        <span class="btn-icon">▶</span> Launch Autonomous Swarm
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="dashboard-grid">
+    <!-- Left Column: Controls & Multi-Agent DAG Visualizer -->
+    <section class="panel left-panel">
+      <!-- Config Box -->
+      <div class="card config-card">
+        <h2 class="card-title">Swarm Orchestration Parameters</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="inputTargetDir">Target Directory</label>
+            <input type="text" id="inputTargetDir" value="benchmarks/legacy_payment_service" class="input-control">
+          </div>
+          <div class="form-group">
+            <label for="selectProvider">LLM Provider</label>
+            <select id="selectProvider" class="input-control">
+              <option value="ollama" selected>Local Ollama (qwen2.5-coder:14b)</option>
+              <option value="mock">Deterministic Mock (Instant / Test Mode)</option>
+              <option value="openai">OpenAI (gpt-4o-mini)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="inputMaxRetries">Max Self-Healing Retries</label>
+            <input type="number" id="inputMaxRetries" value="3" min="1" max="5" class="input-control">
+          </div>
+          <div class="form-group">
+            <label for="selectStack">Modernization Target</label>
+            <select id="selectStack" class="input-control">
+              <option value="python_legacy_to_async_fastapi">Async Python 3.12 + FastAPI + Pydantic v2</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- LangGraph DAG State Machine Visualizer -->
+      <div class="card dag-card">
+        <div class="card-header-row">
+          <h2 class="card-title">LangGraph Multi-Agent Architecture</h2>
+          <span class="dag-legend">Active Node Glows</span>
+        </div>
+        <div class="dag-container">
+          <div class="dag-node" id="node_ast_analyzer_node">
+            <span class="node-icon">🌲</span>
+            <span class="node-name">AST Analyzer</span>
+            <span class="node-role">Topological DAG</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_architect_node">
+            <span class="node-icon">📐</span>
+            <span class="node-name">Architect</span>
+            <span class="node-role">Plan & Contracts</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_transpiler_node">
+            <span class="node-icon">⚙️</span>
+            <span class="node-name">Transpiler</span>
+            <span class="node-role">Async & Types</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_test_synthesizer_node">
+            <span class="node-icon">🧪</span>
+            <span class="node-name">Test Synthesizer</span>
+            <span class="node-role">TDD Pytest</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_sandbox_execution_node">
+            <span class="node-icon">📦</span>
+            <span class="node-name">Sandbox</span>
+            <span class="node-role">Subprocess Eval</span>
+          </div>
+          <div class="dag-connector cyclic">⇄</div>
+          <div class="dag-node cyclic-node" id="node_self_healer_node">
+            <span class="node-icon">🔄</span>
+            <span class="node-name">Self-Healer</span>
+            <span class="node-role">Cyclic Repair Loop</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_module_completed_node">
+            <span class="node-icon">✅</span>
+            <span class="node-name">Completed</span>
+            <span class="node-role">Diff & Next</span>
+          </div>
+          <div class="dag-connector">➜</div>
+          <div class="dag-node" id="node_pr_generator_node">
+            <span class="node-icon">📝</span>
+            <span class="node-name">PR Reviewer</span>
+            <span class="node-role">Changelog & PR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Human In The Loop Modal Trigger Card -->
+      <div class="card hitl-card" id="hitlCard" style="display: none;">
+        <div class="hitl-banner">
+          <span class="alert-icon">⚠️</span>
+          <div>
+            <h3>Human-in-the-Loop Approval Required</h3>
+            <p>Self-healing retries exceeded limit or breaking contract detected. Review diff and authorize progression.</p>
+          </div>
+        </div>
+        <div class="hitl-actions">
+          <button id="btnHitlApprove" class="btn btn-success">Approve & Continue</button>
+          <button id="btnHitlReject" class="btn btn-danger">Abort Migration</button>
+        </div>
+      </div>
+
+      <!-- Live Activity Log -->
+      <div class="card log-card">
+        <h2 class="card-title">Live Swarm Execution Stream</h2>
+        <div class="log-stream" id="logStream">
+          <div class="log-entry system">System initialized. Ready to begin migration.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Code Diff & PR Summary Viewer -->
+    <section class="panel right-panel">
+      <!-- Migrated Modules Table -->
+      <div class="card modules-card">
+        <h2 class="card-title">Migrated Modules</h2>
+        <div class="modules-table-wrapper">
+          <table class="modules-table">
+            <thead>
+              <tr>
+                <th>File</th>
+                <th>Tests Passed</th>
+                <th>Retries</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="modulesTableBody">
+              <tr>
+                <td colspan="4" class="empty-state">No modules migrated yet. Launch the swarm to begin.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Diff / Code Viewer -->
+      <div class="card code-viewer-card">
+        <div class="card-header-row">
+          <h2 class="card-title" id="diffViewerTitle">Code Comparison & Unified Diff</h2>
+          <div class="tab-group">
+            <button class="tab-btn active" data-tab="diff">Unified Diff</button>
+            <button class="tab-btn" data-tab="modern">Modernized Code</button>
+            <button class="tab-btn" data-tab="tests">Synthesized Tests</button>
+            <button class="tab-btn" data-tab="legacy">Legacy Source</button>
+          </div>
+        </div>
+        <div class="code-container">
+          <pre><code id="codeDisplayArea" class="language-python">// Select a migrated module to view diff or modern code</code></pre>
+        </div>
+      </div>
+
+      <!-- PR Summary Card -->
+      <div class="card pr-card" id="prCard">
+        <h2 class="card-title">Executive Pull Request & Migration Changelog</h2>
+        <div class="pr-content" id="prContentArea">
+          <p class="placeholder-text">The Pull Request description will be synthesized automatically once all modules pass sandbox tests.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
